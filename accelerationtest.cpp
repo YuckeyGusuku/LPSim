@@ -6,7 +6,7 @@ const int centerRow = 241;//フィルタの中心地
 const int centerCol = 241;//フィルタの中心地
 const int amountmode = 8; //lpモード数
 double minloss = 100;
-
+string FileName = "lp8-4O-SI-diff.txt";
 int d1 = 9, d2 = 19, d3 = 51, d4 = 51, d5 = 51, d6 = 51, d7 = 51, d8 = 51;
 
 int main() {
@@ -39,7 +39,12 @@ int main() {
         infile.close();
     }
 
-    ofstream file("lp8-4O-SI-diff.txt");
+    ofstream file(FileName);
+    if (!file) {
+        // ファイルが開けなかった場合
+        std::cerr << "Error: ファイルを開けませんでした。ファイル名: " << FileName << std::endl;
+        return 1; // エラー終了
+    }
 
     //時間測定
     LARGE_INTEGER freq;
