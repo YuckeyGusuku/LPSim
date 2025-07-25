@@ -6,11 +6,11 @@ const int centerRow = 241;//フィルタの中心地
 const int centerCol = 241;//フィルタの中心地
 const int amountmode = 8; //lpモード数
 double minloss = 100;
-string FileName = "lp6-1O-SI-diff.txt";
+string FileName = "lp8-2O-SI-diff.txt";
 int d1 = 9, d2 = 19, d3 = 51, d4 = 51, d5 = 51, d6 = 51, d7 = 51, d8 = 51;
 
 int main() {
-    const string files[amountmode] = {"lp01mode.txt", "lp11mode.txt", "lp02mode.txt", "lp21mode.txt","lp31mode.txt","lp12mode.txt"/*,"lp41mode.txt","lp22mode.txt"*/};
+    const string files[amountmode] = {"lp01mode.txt", "lp11mode.txt", "lp02mode.txt", "lp21mode.txt","lp31mode.txt","lp12mode.txt","lp41mode.txt","lp22mode.txt"};
     vector<double> matrix(amountmode * rows * cols, 0.0);  // 光強度分布を入れる配列
     string line;
     double lppower[amountmode] = {0.0};//lpパワー,損失
@@ -47,10 +47,10 @@ int main() {
     }
 
     //時間測定
-    LARGE_INTEGER freq;
-    QueryPerformanceFrequency(&freq);
-    LARGE_INTEGER start, end;
-    QueryPerformanceCounter(&start);
+    //LARGE_INTEGER freq;
+    //QueryPerformanceFrequency(&freq);
+    //LARGE_INTEGER start, end;
+    //QueryPerformanceCounter(&start);
     createfilter(matrix,aplppower);
     calculateloss(lppower, aplppower, file);
     //cout << lppower[0]<<endl;
@@ -88,17 +88,17 @@ int main() {
     //        for(d6 = 49; d6 > d5; d6--){
     //            for(d5 = 48;d5 >= d4; d5--){
                     //for(d4 = 60;d4 > 4; d4--){
-                        //for(d3 = 60; d3 > 3; d3--){
-                           //for(d2 = 60; d2 > 2; d2--){
-                                    for(d1 = 60 ;d1 >=1 ; d1--){
+                        //for(d3 = d4-1; d3 > 3; d3--){
+                           for(d2 = 60; d2 > 2; d2--){
+                                    for(d1 = d2-1 ;d1 >=1 ; d1--){
                                         createfilter(matrix,aplppower);
                                         #pragma omp critical
                                         {
                                             calculateloss(lppower, aplppower, file);
                                         }
                                    }
-                           //}
-                       //}
+                           }
+                      //}
                    //}
     //            }
                
@@ -107,10 +107,10 @@ int main() {
     //    cout <<"\n"<<"------------------------d8 = "<< d8<< "\n";
     //    file.flush();
     // }
-    QueryPerformanceCounter(&end);
-    double spead = static_cast<double>(end.QuadPart - start.QuadPart) * 1000.000 / freq.QuadPart;
+    //QueryPerformanceCounter(&end);
+    //double spead = static_cast<double>(end.QuadPart - start.QuadPart) * 1000.000 / freq.QuadPart;
     
-    cout << "time=" << spead << "msec\n";
+    //cout << "time=" << spead << "msec\n";
     
     cout << "Press Enter to continue...";
     cin.ignore();
@@ -123,12 +123,19 @@ double calculateValue(int row, int col) {
     double distance = sqrt(pow(row - centerRow, 2) + pow(col - centerCol, 2));
     
     if(distance <= d1){
+        return 1;
+    }else if(d1 < distance && distance <= d2){
         return 0;
     }else{
         return 1;
     }
     // Calculate value based on distance
-    /*if(distance <= d3){
+    /*else if(d2 < distance && distance <=d3){
+        return 1;
+    }else if(d3 < distance && distance <= d4){
+        return 0;
+    }
+    if(distance <= d3){
         return 0;
     }else if(d3 < distance && distance < d4){
         return  (distance - d3) / (d4 - d3);
@@ -204,9 +211,8 @@ double calculateloss(double *lppower, double *aplppower, ofstream& file){
     double difflp21 = abs(lploss[0]-lploss[3]-1.8);
     double difflp31 = abs(lploss[0]-lploss[4]-2.6);
     double difflp12 = abs(lploss[0]-lploss[5]-2.6);
-    /*
-    double difflp22 = abs(lploss[0]-lploss[6]-3.4);
-    double difflp41 = abs(lploss[0]-lploss[7]-3.4);*/
+    double difflp22 = abs(lploss[0]-lploss[6]-3);
+    double difflp41 = abs(lploss[0]-lploss[7]-3);
 
     //cout <<difflp11<<","<<difflp02<<","<<difflp21<<"lploss = "<<lploss[0]<<"\n";
     //file <</*max({difflp11,difflp02,difflp21})*/difflp11<<"lploss = "<<lploss[0]<<"aplppower = "<<aplppower[0]<<"\n";
@@ -225,7 +231,7 @@ double calculateloss(double *lppower, double *aplppower, ofstream& file){
      //        minloss = lploss[0];
      //    }
      //}
-     double maxdiff = max({difflp11,difflp02,difflp21,difflp31,difflp12/*,difflp22,difflp41*/});
+     double maxdiff = max({difflp11,difflp02,difflp21,difflp31,difflp12,difflp22,difflp41});
      //cout << "maxdiff:   " << maxdiff<<"\n";
      if( maxdiff <= minloss){
          cout <<"lploss="<< lploss[0]<<"minloss"<<minloss<<"\n";    
@@ -244,9 +250,8 @@ double calculateloss(double *lppower, double *aplppower, ofstream& file){
     aplppower[3] = 0.00;
     aplppower[4] = 0.00;
     aplppower[5] = 0.00;
-    /*
     aplppower[6] = 0.00;
-    aplppower[7] = 0.00;*/
+    aplppower[7] = 0.00;
 
     return 0;
 }
